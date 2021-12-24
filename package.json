@@ -1,0 +1,16 @@
+{
+  "name": "nrmp",
+  "version": "1.0.0",
+  "description": "bolierplate",
+  "main": "server.js",
+  "devDependencies": {},
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "author": "rodneyrinaldi <rodneyrinaldi@hotmail.com> (https://rodneyrinaldi.com/)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.2",
+    "nodemon": "^2.0.15"
+  }
+}

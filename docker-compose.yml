@@ -1,0 +1,101 @@
+version: '3.8'
+
+networks:
+  bp-net:
+
+# volumes:
+#   bpc-redis-dbf:
+#   bpc-mysql-dbf:
+#   bpc-postgres-dbf:
+#   bpc-pgadmin-dbf:
+
+
+services:
+
+  bp-node:
+    container_name: bpc-node
+    image: node
+    command: sh -c "yarn install && yarn run dev"
+    ports:
+      - 3000:3000
+    working_dir: /app
+    networks:
+      bp-net:
+    environment:
+      DB_HOST_REDIS: bp-redis
+      DB_HOST_MYSQL: bp-mysql
+      DB_HOST_POSTGRES: bp-postgres
+    restart: always
+    tty: true
+    volumes:
+      - ./:/app
+    depends_on:
+      - bp-redis
+      - bp-mysql
+      - bp-postgres
+
+  bp-redis:
+    container_name: bpc-redis
+    image: redis
+    networks:
+      bp-net:
+    restart: always
+    tty: true
+    volumes:
+      - .dbf/redis:/data
+
+  bp-mysql:
+    container_name: bpc-mysql
+    image: mysql
+    networks:
+      bp-net:
+    restart: always
+    tty: true
+    volumes:
+      - .dbf/mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+
+  bp-postgres:
+    container_name: bpc-postgres
+    image: postgres
+    networks:
+      bp-net:
+    restart: always
+    tty: true
+    volumes:
+      - .dbf/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: 'db'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'password'
+    ports:
+      - "5432:5432"
+    expose:
+      - '5432'
+
+  bp-pgadmin:
+    container_name: bpc-pgadmin
+    image: dpage/pgadmin4
+    networks:
+      bp-net:
+    restart: always
+    tty: true
+    volumes:
+      - .dbf/pgadmin:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    expose:
+      - '5050'
+    depends_on:
+      - bp-postgres
